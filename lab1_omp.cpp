@@ -6,6 +6,7 @@
 #include <cmath>
 #include <stdlib.h>
 #include <stdio.h>
+#include <omp.h>
 #include "lab1_sequential.h"
 using namespace std;
 
@@ -46,12 +47,14 @@ bool converge(vector<int>v1, vector<int>v2){
     return true;
 }
 
-void kmeans_sequential(int N,
-                       int K,
-                       int* data_points,
-                       int** data_point_cluster,
-                       float** centroids,
-                       int* num_iterations){
+void kmeans_omp(int num_threads,
+				int N,
+				int K,
+				int* data_points,
+				int** data_point_cluster,
+				float** centroids,
+				int* num_iterations
+				){
 
     int size_of_partition= floor(N/(2*K));
     srand(1);
@@ -71,6 +74,7 @@ void kmeans_sequential(int N,
 
     while (true){
         iteration++;
+        int c_number[N];
         // std::cout << iteration << '\n';
         vector<int> centroid_number_old;
         centroid_number_old=centroid_number_new;
@@ -102,11 +106,19 @@ void kmeans_sequential(int N,
         centroid_iterations.push_back(my_centroids);
         my_centroids.clear();
         my_centroids=new_centroids;
-        for (int i = 0; i <3*N ; i=i+3) {
 
-            centroid_number_new.push_back(closest(data_points[i],data_points[i+1],data_points[i+2]));
+        #pragma omp parallel num_threads(num_threads)
+        {
+        #pragma omp for
+        for (int i = 0; i <3*N ; i=i+3) {
+            c_number[i/3]=closest(data_points[i],data_points[i+1],data_points[i+2]);
+            // centroid_number_new.push_back(closest(data_points[i],data_points[i+1],data_points[i+2]));
         }
+      }
         // std::cout << "4" << '\n';
+        for (int i = 0; i < N; i++) {
+            centroid_number_new.push_back(c_number[i]);
+        }
 
         if (converge(centroid_number_new,centroid_number_old)) break;
     }
