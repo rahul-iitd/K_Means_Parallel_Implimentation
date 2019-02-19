@@ -1,7 +1,6 @@
 #include "lab1_io.h"
 #include "lab1_omp.h"
 
-#include <omp.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -36,7 +35,7 @@ int main(int argc, char const *argv[])
 	int num_iterations;    //no of iterations performed by algo (to be computed)
 	//---------------------------------------------------------------------
 
-	double start_time, end_time;
+	clock_t start_time, end_time;
 	double computation_time;
 
 	K = atoi(argv[1]);
@@ -52,14 +51,14 @@ int main(int argc, char const *argv[])
 	*/
 	dataset_in (argv[3], &N, &data_points);
 
-	start_time = omp_get_wtime();
+	start_time = clock();
 	// /*
 	// 	*****************************************************
 	// 		TODO -- You must implement this function
 	// 	*****************************************************
 	// */
 	kmeans_omp(num_threads, N, K, data_points, &cluster_points, &centroids, &num_iterations);
-	end_time = omp_get_wtime();
+	end_time = clock();
 
 	// /*
 	// 	-- Pre-defined function --
@@ -68,8 +67,8 @@ int main(int argc, char const *argv[])
 	clusters_out (argv[4], N, cluster_points);
 	centroids_out (argv[5], K, num_iterations, centroids);
 
-	computation_time = ((double) (end_time - start_time));
+	computation_time = ((double) (end_time - start_time)) / CLOCKS_PER_SEC;
 	printf("Time Taken: %lf \n", computation_time);
-
+	
 	return 0;
 }

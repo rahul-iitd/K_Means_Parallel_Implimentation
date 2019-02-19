@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <omp.h>
-#include "lab1_sequential.h"
+#include "lab1_pthread.h"
 #include <pthread.h>
 using namespace std;
 
